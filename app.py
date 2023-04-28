@@ -18,7 +18,7 @@ from sklearn.model_selection import GridSearchCV
 
 
 ######## data manipulation
-df = pd.read_csv("C:\\Users\\Chris\\Downloads\\MushroomDataset (1)\\MushroomDataset\\secondary_data.csv", index_col=0, sep=";")
+df = pd.read_csv("secondary_data.csv", index_col=0, sep=";")
 df = df.reset_index()
 df = df.drop(['stem-root', 'veil-type', 'veil-color', 'spore-print-color', 'stem-surface'], axis = 1)
 df = df.drop(['gill-spacing', 'gill-attachment', 'cap-surface'], axis = 1)
