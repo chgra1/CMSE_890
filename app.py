@@ -16,6 +16,7 @@ from sklearn.model_selection import GridSearchCV
 
 
 ######## data manipulation
+st.header("App works")
 df = pd.read_csv("secondary_data.csv", index_col=0, sep=";")
 df = df.reset_index()
 df = df.drop(['stem-root', 'veil-type', 'veil-color', 'spore-print-color', 'stem-surface'], axis = 1)
@@ -54,20 +55,20 @@ df = df.drop(['cap-diameter'], axis = 1)
 
 
 ### beginning of model ###
-X = df.drop('class', axis=1)
-y = df['class']
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+#X = df.drop('class', axis=1)
+#y = df['class']
+#X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 #t1 = datetime.datetime.now()
-base_models = [('knn1', KNeighborsClassifier(n_neighbors=11, weights = 'distance')),
-               ('knn2', KNeighborsClassifier(n_neighbors=13, weights = 'distance')),
-               ('knn3', KNeighborsClassifier(n_neighbors=7, weights = 'distance'))]
-meta_model = LogisticRegression()
-stacking = StackingClassifier(estimators=base_models, final_estimator=meta_model)
-for name, model in base_models:
-    model.fit(X_train, y_train)
-base_predictions = np.column_stack([model.predict_proba(X_test)[:,1] for name, model in base_models])
-meta_model.fit(base_predictions, y_test)
+#base_models = [('knn1', KNeighborsClassifier(n_neighbors=11, weights = 'distance')),
+ #              ('knn2', KNeighborsClassifier(n_neighbors=13, weights = 'distance')),
+  #             ('knn3', KNeighborsClassifier(n_neighbors=7, weights = 'distance'))]
+#meta_model = LogisticRegression()
+#stacking = StackingClassifier(estimators=base_models, final_estimator=meta_model)
+#for name, model in base_models:
+#    model.fit(X_train, y_train)
+#base_predictions = np.column_stack([model.predict_proba(X_test)[:,1] for name, model in base_models])
+#meta_model.fit(base_predictions, y_test)
 #t2 = datetime.datetime.now()
 #print(t2-t1)
-stacking_predictions = meta_model.predict(base_predictions)
-stacking_accuracy_hp1 = accuracy_score(y_test, stacking_predictions)
+#stacking_predictions = meta_model.predict(base_predictions)
+#stacking_accuracy_hp1 = accuracy_score(y_test, stacking_predictions)
