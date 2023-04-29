@@ -10,16 +10,19 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import confusion_matrix 
 from sklearn.ensemble import StackingClassifier
-from sklearn.model_selection import GridSearchCV
 
 
-st.write("hello world")
+
+#st.write("hello world")
 ### Data input ###
 df = pd.read_csv("secondary_data.csv", index_col = 0, sep=";")
 
 
 #st.write(df.tail())
-
+st.header('Mushroom Poison Predictor')
+st.write('Please select the features your mushroom has below')
+st.write('when completed select "run model" to see if your mushroom is poisonous')
+st.write('Safe foragaing!')
 df = df.reset_index()
 df = df.drop('stem-root', axis=1)
 df = df.drop('veil-type', axis=1)
@@ -31,7 +34,7 @@ df = df.drop('gill-attachment', axis=1)
 df = df.drop('cap-surface', axis=1)
 #df = df.drop(['stem-root', 'veil-type', 'veil-color', 'spore-print-color', 'stem-surface'], axis = 1)
 #df = df.drop(['gill-spacing', 'gill-attachment', 'cap-surface'], axis = 1)
-st.write('check_1')
+#st.write('check_1')
 df['class'] = df['class'].replace({'p': 1, 'e': 0})
 df['has-ring'] = df['has-ring'].replace({'t': 1, 'f': 0})
 df['does-bruise-or-bleed'] = df['does-bruise-or-bleed'].replace({'t': 1, 'f': 0})
@@ -42,31 +45,41 @@ df = pd.get_dummies(df, columns = ['cap-color'])
 df = pd.get_dummies(df, columns = ['gill-color'])
 df = pd.get_dummies(df, columns = ['stem-color'])
 df = pd.get_dummies(df, columns = ['ring-type'])
-df = df.drop(['ring-type_f'], axis = 1)
+df = df.drop('ring-type_f', axis = 1)
 df = df.drop('stem-width', axis = 1)
-st.write('check_2')
+#st.write('check_2')
 df['cap-diameter_1'] = df['cap-diameter'].apply(lambda x: 'Small' if x <= 5 else 'Large' if x >= 7.5 else 'Medium')
 df['stem-height'] = df['stem-height'].apply(lambda x: 'Small' if x <= 5 else 'Large' if x >= 7.5 else 'Medium')
 df = pd.get_dummies(df, columns = ['cap-diameter_1'])
 #df = pd.get_dummies(df, columns = ['stem-width_1'])
 df = pd.get_dummies(df, columns = ['stem-height'])
 df = df.drop(['cap-diameter'], axis = 1)
-st.write('check_3')
+#st.write('check_3')
 df_i = df.copy().iloc[0:0]
 df_i.loc[0] = 0
-st.write((df_i))
+df_i = df_i.drop('class', axis = 1)
+
+counts = df_i.nunique()
+pd.set_option('display.max_rows', None)
+#st.write(counts)
+#st.write((df_i))
+st.image('Mushroom.png')
 
 ### st inputs
-seas = st.selectbox(label = 'Season', options = ['Spring', 'Summer', 'Fall', 'Winter'], index = 0)
-hab = st.selectbox(label = 'Habitat', options = ['Grass', 'Leaves', 'Meadows', 'Paths', 'Heaths', 'Urban', 'Waste', 'Woods'], index = 0)
-cs = st.selectbox(label = 'Cap Shape', options = ['Bell', 'Conical', 'Convex', 'Flat', 'Sunken', 'Spherical', 'Other'], index = 0)
-cc = st.selectbox(label = 'Cap Color', options = ['Brown', 'Buff', 'Gray', 'Green', 'Pink', 'Purple', 'Red', 'White', 'Yellow', 'Blue', 'Orange', 'Black'], index = 0)
-gc = st.selectbox(label = 'Gill Color', options = ['Brown', 'Buff', 'Gray', 'Green', 'Pink', 'Purple', 'Red', 'White', 'Yellow', 'Blue', 'Orange', 'Black', 'None'], index = 0)
-sc = st.selectbox(label = 'Stem Color', options = ['Brown', 'Buff', 'Gray', 'Green', 'Pink', 'Purple', 'Red', 'White', 'Yellow', 'Blue', 'Orange', 'Black', 'None'], index = 0)
-rt = st.selectbox(label = 'Ring Type', options = ['Cobwebby', 'Evanescant', 'Flaring', 'Grooved', 'Large', 'Pendant', 'Sheathing', 'Zone', 'Scaly', 'Movable', 'None'], index = 0)
-cd = st.selectbox(label = 'Cap Diameter', options = ['Smaller than the diameter of a soda can', 'Larger than a baseball', 'between these'], index = 0)
-sh = st.selectbox(label = 'Stem Height', options = ['Smaller than the diameter of a soda can', 'Larger than a baseball', 'between these'], index = 0)
-bb = st.radio(label = 'Bruise or Bleed', options = ['Yes', 'No'] )
+col1, col2 = st.columns(2)
+with col1:
+	seas = st.selectbox(label = 'Season', options = ['Spring', 'Summer', 'Fall', 'Winter'], index = 0)
+	hab = st.selectbox(label = 'Habitat', options = ['Grass', 'Leaves', 'Meadows', 'Paths', 'Heaths', 'Urban', 'Waste', 'Woods'], index = 0)
+	cs = st.selectbox(label = 'Cap Shape', options = ['Bell', 'Conical', 'Convex', 'Flat', 'Sunken', 'Spherical', 'Other'], index = 0)
+	cc = st.selectbox(label = 'Cap Color', options = ['Brown', 'Buff', 'Gray', 'Green', 'Pink', 'Purple', 'Red', 'White', 'Yellow', 'Blue', 'Orange', 'Black'], index = 0)
+	gc = st.selectbox(label = 'Gill Color', options = ['Brown', 'Buff', 'Gray', 'Green', 'Pink', 'Purple', 'Red', 'White', 'Yellow', 'Blue', 'Orange', 'Black', 'None'], index = 0)
+with col2:
+	sc = st.selectbox(label = 'Stem Color', options = ['Brown', 'Buff', 'Gray', 'Green', 'Pink', 'Purple', 'Red', 'White', 'Yellow', 'Blue', 'Orange', 'Black', 'None'], index = 0)
+	rt = st.selectbox(label = 'Ring Type', options = ['Evanescant', 'Flaring', 'Grooved', 'Large', 'Pendant', 'Sheathing', 'Zone', 'Scaly', 'Movable', 'None'], index = 0)
+	cd = st.selectbox(label = 'Cap Diameter', options = ['Smaller than the diameter of a soda can', 'Larger than a baseball', 'between these'], index = 0)
+	sh = st.selectbox(label = 'Stem Height', options = ['Smaller than the diameter of a soda can', 'Larger than a baseball', 'between these'], index = 0)
+	bb = st.radio(label = 'Bruise or Bleed', options = ['Yes', 'No'] )
+
 
 #### Does bruise or bleed
 if bb == 'Yes':
@@ -92,8 +105,7 @@ if sh == 'Larger than a baseball':
 
 ### ring type inputs
 
-if rt == 'Cobwebby':
-	df_i["ring-type_c"] = 1
+
 if rt == 'Evanescant':
 	df_i["ring-type_e"] = 1
 if rt == 'Flaring':
@@ -247,26 +259,25 @@ if cs == 'Other':
 	df_i["cap-shape_o"] = 1
 
 
+if st.button('run model'):
+	base_models = [('knn1', KNeighborsClassifier(n_neighbors=11, weights='distance')),               ('knn2', KNeighborsClassifier(n_neighbors=13, weights='distance')),               ('knn3', KNeighborsClassifier(n_neighbors=7, weights='distance'))]
+	meta_model = LogisticRegression()
+	st.write('1')
+	stacking = StackingClassifier(estimators=base_models, final_estimator=meta_model)
+	X_train = df.drop('class', axis=1)
+	st.write('2')
+	y_train = df['class']
+	for name, model in base_models:
+	    model.fit(X_train, y_train)
+	base_predictions = np.column_stack([model.predict_proba(X_train)[:, 1] for name, model in base_models])
+	st.write('3')
+	meta_model.fit(base_predictions, y_train)
+	input_observation = df_i
+	input_predictions = meta_model.predict(np.column_stack([model.predict_proba(input_observation)[:, 1] for name, model in base_models]))
+	if input_predictions == 1:
 
-st.write(df_i)
-
-##### model inputs
-
-X = df.drop('class', axis=1)
-y = df['class']
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-base_models = [('knn1', KNeighborsClassifier(n_neighbors=11, weights = 'distance')),
-               ('knn2', KNeighborsClassifier(n_neighbors=13, weights = 'distance')),
-               ('knn3', KNeighborsClassifier(n_neighbors=7, weights = 'distance'))]
-meta_model = LogisticRegression()
-stacking = StackingClassifier(estimators=base_models, final_estimator=meta_model)
-for name, model in base_models:
-   model.fit(X_train, y_train)
-base_predictions = np.column_stack([model.predict_proba(X_test)[:,1] for name, model in base_models])
-meta_model.fit(base_predictions, y_test)
-st.write('check 4')
-#t2 = datetime.datetime.now()
-#print(t2-t1)
-#stacking_predictions = meta_model.predict(base_predictions)
-#stacking_accuracy_hp1 = accuracy_score(y_test, stacking_predictions)
+		st.image('bad.png')
+		st.write('This mushroom is dangerous. Do not consume. If you have already consumed this mushroom please contact poison control at 800-222-1222')
+	else:
+		st.image('good.png')
+		st.write("Enjoy the mushroom!")
